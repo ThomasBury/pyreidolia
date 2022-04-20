@@ -1,0 +1,15 @@
+matplotlib
+numpy
+palettable
+pandas
+opencv-python
+tqdm
+numba
+pyyaml
+swifter
+seaborn
+scicomap
+pyarrow
+fastparquet
+sklearn
+tensorflow
