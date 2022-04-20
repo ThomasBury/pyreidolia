@@ -28,7 +28,7 @@ setup(
     zip_safe=False,  # the package can run out of an .egg file
     install_requires=REQUIREMENTS,
     extras_require=EXTRAS_REQUIRE,
-    python_requires=">=3.8",
+    python_requires=">=3.7",
     license="MIT",
     keywords=KEYWORDS,
     url='https://www.kaggle.com/c/understanding_cloud_organization'
