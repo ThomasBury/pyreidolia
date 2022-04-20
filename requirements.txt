@@ -12,4 +12,3 @@ scicomap
 pyarrow
 fastparquet
 sklearn
-tensorflow
