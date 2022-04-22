@@ -68,6 +68,8 @@ class CloudDataset(Dataset):
         image transform function for image augmentation, by default albu.Compose([albu.HorizontalFlip()])
     subfolder : str
         where to store the images, by default "train_images_525/"
+    gray_scale : boolean
+        if the image is gray scale or color scale
     """
     def __init__(
         self,
@@ -76,7 +78,8 @@ class CloudDataset(Dataset):
         img_ids: np.array = None,
         transforms=albu.Compose([albu.HorizontalFlip()]),
         img_dir = None,
-        subfolder = "train_images_525/"
+        subfolder = "train_images_525/",
+        gray_scale = True
     ):
         self.df = df
         if datatype != "test":
@@ -85,13 +88,15 @@ class CloudDataset(Dataset):
             self.data_folder = f"{img_dir}{subfolder}"
         self.img_ids = img_ids
         self.transforms = transforms
+        self.gray_scale = gray_scale
 
     def __getitem__(self, idx):
         image_name = self.img_ids[idx]
         mask = make_mask(self.df, image_name)
         image_path = os.path.join(self.data_folder, image_name)
         img = cv2.imread(image_path)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        if not self.gray_scale:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         augmented = self.transforms(image=img, mask=mask)
         img = np.transpose(augmented["image"], [2, 0, 1])
         mask = np.transpose(augmented["mask"], [2, 0, 1])
