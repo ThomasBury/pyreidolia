@@ -11,6 +11,7 @@ import albumentations as albu
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
+import torchvision
 
 from typing import Union, Callable
 from pyreidolia.mask import make_mask
@@ -95,7 +96,9 @@ class CloudDataset(Dataset):
         mask = make_mask(self.df, image_name)
         image_path = os.path.join(self.data_folder, image_name)
         img = cv2.imread(image_path)
-        if not self.gray_scale:
+        if self.gray_scale:
+            img = torchvision.transforms.Grayscale()(img)
+        else:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         augmented = self.transforms(image=img, mask=mask)
         img = np.transpose(augmented["image"], [2, 0, 1])
