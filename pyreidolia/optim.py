@@ -83,7 +83,7 @@ class RAdam(Optimizer):
                     denom = exp_avg_sq.sqrt().add_(group['eps'])
                     p_data_fp32.addcdiv_(-step_size * group['lr'], exp_avg, denom)
                 else:
-                    p_data_fp32.add_(Tensor=exp_avg, Number=-step_size * group['lr'])
+                    p_data_fp32.add_(other=exp_avg, alpha=-step_size * group['lr'])
 
                 p.data.copy_(p_data_fp32)
 
