@@ -99,6 +99,7 @@ class CloudDataset(Dataset):
         if self.gray_scale:
             img = Image.open(image_path)
             img = torchvision.transforms.Grayscale()(img)
+            img = np.array(img)
         else:
             img = cv2.imread(image_path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
