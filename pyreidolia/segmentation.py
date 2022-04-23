@@ -112,8 +112,13 @@ class CloudDataset(Dataset):
     def __len__(self):
         return len(self.img_ids)
 
-def get_training_augmentation(gray_scale = True):
+def get_training_augmentation(gray_scale: bool = True):
     """retrieve the augmented training images
+    
+    Parameters
+    ----------
+    gray_scale : 
+        if grayscale image, single channel, by default True
 
     Returns
     -------
@@ -131,16 +136,23 @@ def get_training_augmentation(gray_scale = True):
         ),
         albu.GridDistortion(p=0.5),
         albu.Resize(320, 640),
-        albu.Normalize(mean=(0.485, 0.456), std=(0.229, 0.224)) if gray_scale else albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+        albu.Normalize(mean=(0.485), std=(0.229)) if gray_scale else albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     ]
     return albu.Compose(train_transform)
 
 
-def get_validation_augmentation(gray_scale = True):
-    """Add paddings to make image shape divisible by 32"""
+def get_validation_augmentation(gray_scale: bool = True):
+    """Add paddings to make image shape divisible by 32
+    
+    Parameters
+    ----------
+    gray_scale : 
+        if grayscale image, single channel, by default True
+    """
+
     test_transform = [
         albu.Resize(320, 640),
-        albu.Normalize(mean=(0.485, 0.456), std=(0.229, 0.224)) if gray_scale else albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+        albu.Normalize(mean=(0.485), std=(0.229)) if gray_scale else albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     ]
     return albu.Compose(test_transform)
 
