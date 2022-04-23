@@ -125,6 +125,7 @@ def get_training_augmentation(gray_scale: bool = True):
     object
         the albumentation transform
     """
+    al_norm = albu.Normalize(mean=(0.485), std=(0.229)) if gray_scale else albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
     train_transform = [
         albu.HorizontalFlip(p=0.5),
         albu.ShiftScaleRotate(
@@ -136,7 +137,7 @@ def get_training_augmentation(gray_scale: bool = True):
         ),
         albu.GridDistortion(p=0.5),
         albu.Resize(320, 640),
-        albu.Normalize(mean=(0.485), std=(0.229)) if gray_scale else albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+        al_norm,
     ]
     return albu.Compose(train_transform)
 
@@ -149,10 +150,10 @@ def get_validation_augmentation(gray_scale: bool = True):
     gray_scale : 
         if grayscale image, single channel, by default True
     """
-
+    al_norm = albu.Normalize(mean=(0.485), std=(0.229)) if gray_scale else albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
     test_transform = [
         albu.Resize(320, 640),
-        albu.Normalize(mean=(0.485), std=(0.229)) if gray_scale else albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+        al_norm,
     ]
     return albu.Compose(test_transform)
 
