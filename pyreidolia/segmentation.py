@@ -70,40 +70,31 @@ class CloudDataset(Dataset):
         image transform function for image augmentation, by default albu.Compose([albu.HorizontalFlip()])
     subfolder : str
         where to store the images, by default "train_images_525/"
-    gray_scale : boolean
-        if the image is gray scale or color scale
     """
     def __init__(
         self,
         df: pd.DataFrame = None,
         datatype: str = "train",
         img_ids: np.array = None,
-        transforms=albu.Compose([albu.HorizontalFlip()]),
+        transforms=albu.Compose([albu.HorizontalFlip()]), #, AT.ToTensor()
         img_dir = None,
         subfolder = "train_images_525/",
-        gray_scale = True
     ):
         self.df = df
         if datatype != "test":
             self.data_folder = f"{img_dir}{subfolder}"
         else:
             self.data_folder = f"{img_dir}{subfolder}"
+            
         self.img_ids = img_ids
         self.transforms = transforms
-        self.gray_scale = gray_scale
 
     def __getitem__(self, idx):
         image_name = self.img_ids[idx]
         mask = make_mask(self.df, image_name)
         image_path = os.path.join(self.data_folder, image_name)
-        if self.gray_scale:
-            img = Image.open(image_path)
-            img = torchvision.transforms.Grayscale()(img)
-            img = np.array(img)
-            img = np.expand_dims(img, -1)
-        else:
-            img = cv2.imread(image_path)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.imread(image_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         augmented = self.transforms(image=img, mask=mask)
         img = np.transpose(augmented["image"], [2, 0, 1])
         mask = np.transpose(augmented["mask"], [2, 0, 1])
@@ -111,21 +102,16 @@ class CloudDataset(Dataset):
 
     def __len__(self):
         return len(self.img_ids)
-
-def get_training_augmentation(gray_scale: bool = True):
-    """retrieve the augmented training images
     
-    Parameters
-    ----------
-    gray_scale : 
-        if grayscale image, single channel, by default True
+
+def get_training_augmentation():
+    """retrieve the augmented training images
 
     Returns
     -------
     object
         the albumentation transform
     """
-    al_norm = albu.Normalize(mean=(0.485), std=(0.229)) if gray_scale else albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
     train_transform = [
         albu.HorizontalFlip(p=0.5),
         albu.ShiftScaleRotate(
@@ -137,25 +123,18 @@ def get_training_augmentation(gray_scale: bool = True):
         ),
         albu.GridDistortion(p=0.5),
         albu.Resize(320, 640),
-        al_norm,
+        albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     ]
     return albu.Compose(train_transform)
 
-
-def get_validation_augmentation(gray_scale: bool = True):
-    """Add paddings to make image shape divisible by 32
-    
-    Parameters
-    ----------
-    gray_scale : 
-        if grayscale image, single channel, by default True
-    """
-    al_norm = albu.Normalize(mean=(0.485), std=(0.229)) if gray_scale else albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+def get_validation_augmentation():
+    """Add paddings to make image shape divisible by 32"""
     test_transform = [
         albu.Resize(320, 640),
-        al_norm,
+        albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     ]
     return albu.Compose(test_transform)
+
 
 def get_preprocessing(preprocessing_fn: Callable):
     """Construct preprocessing transform
@@ -306,3 +285,4 @@ class BCEDiceLoss(DiceLoss):
         dice = super().forward(y_pr, y_gt)
         bce = self.bce(y_pr, y_gt)
         return (self.lambda_dice*dice) + (self.lambda_bce* bce)
+    
