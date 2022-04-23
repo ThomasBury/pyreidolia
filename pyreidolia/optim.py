@@ -81,7 +81,7 @@ class RAdam(Optimizer):
                 # more conservative since it's an approximated value
                 if N_sma >= 5:            
                     denom = exp_avg_sq.sqrt().add_(group['eps'])
-                    p_data_fp32.addcdiv_(-step_size * group['lr'], exp_avg, denom)
+                    p_data_fp32.addcdiv_(tensor1=exp_avg, tensor2=denom, value=-step_size * group['lr'])
                 else:
                     p_data_fp32.add_(other=exp_avg, alpha=-step_size * group['lr'])
 
