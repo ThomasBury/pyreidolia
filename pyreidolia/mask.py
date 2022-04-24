@@ -81,7 +81,7 @@ def mask_to_rle(image):
 
 def make_mask(df: pd.DataFrame,
               folder_path: str, 
-              image_name: str = "img.jpg", 
+              image_name: str, 
               shape: Tuple[int] = (350, 525)):
     """Create mask based on df, image name and shape.
 
@@ -92,7 +92,7 @@ def make_mask(df: pd.DataFrame,
     folder_path : str
         images folder path
     image_name : str
-        image name, by default "img.jpg"
+        image name
     shape : Tuple[int]
         mask size, by default (350, 525)
 
