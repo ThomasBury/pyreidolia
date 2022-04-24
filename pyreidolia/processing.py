@@ -20,7 +20,8 @@ def resize(img: Union[np.ndarray, np.array],
         resized image
     """
     if img.shape != img_size:
-        return cv2.resize(img, dsize=img_size, interpolation=cv2.INTER_LINEAR)
+        cv2_img_size = tuple(reversed(img_size))
+        return cv2.resize(img, dsize=cv2_img_size, interpolation=cv2.INTER_LINEAR)
     else:
         return img
 
