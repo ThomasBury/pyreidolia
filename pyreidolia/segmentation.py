@@ -89,7 +89,7 @@ class CloudDataset(Dataset):
 
     def __getitem__(self, idx):
         image_name = self.img_ids[idx]
-        mask = make_mask(self.df, image_name, mask_path=self.mask_folder)
+        mask = make_mask(df=self.df, image_name=image_name, mask_path=self.mask_folder)
         image_path = os.path.join(self.data_folder, image_name)
         img = cv2.imread(image_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
