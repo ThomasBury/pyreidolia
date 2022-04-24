@@ -80,7 +80,7 @@ def mask_to_rle(image):
     return ' '.join(str(x) for x in runs)
 
 def make_mask(df: pd.DataFrame,
-              folder_path: str, 
+              mask_path: str, 
               image_name: str, 
               shape: Tuple[int] = (350, 525)):
     """Create mask based on df, image name and shape.
@@ -89,7 +89,7 @@ def make_mask(df: pd.DataFrame,
     ----------
     df : pd.DataFrame
         data frame containing the image names and patterns
-    folder_path : str
+    mask_path : str
         images folder path
     image_name : str
         image name
@@ -105,7 +105,7 @@ def make_mask(df: pd.DataFrame,
     df = df[df["im_id"] == image_name]
     for idx, im_name in enumerate(df["im_id"].values):
         for classidx, classid in enumerate(["Fish", "Flower", "Gravel", "Sugar"]):
-            mask = cv2.imread(folder_path + classid + im_name)
+            mask = cv2.imread(mask_path + classid + im_name)
             if mask is None:
                 continue
             if mask[:, :, 0].shape != (350, 525):

@@ -79,19 +79,17 @@ class CloudDataset(Dataset):
         transforms=albu.Compose([albu.HorizontalFlip()]), #, AT.ToTensor()
         img_dir = None,
         subfolder = "train_images_525/",
+        mask_subfolder = "train_masks_525/"
     ):
         self.df = df
-        if datatype != "test":
-            self.data_folder = f"{img_dir}{subfolder}"
-        else:
-            self.data_folder = f"{img_dir}{subfolder}"
-            
+        self.data_folder = f"{img_dir}{subfolder}"
+        self.mask_folder = f'{img_dir}{mask_subfolder}'
         self.img_ids = img_ids
         self.transforms = transforms
 
     def __getitem__(self, idx):
         image_name = self.img_ids[idx]
-        mask = make_mask(self.df, image_name)
+        mask = make_mask(self.df, image_name, mask_path=self.mask_folder)
         image_path = os.path.join(self.data_folder, image_name)
         img = cv2.imread(image_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
