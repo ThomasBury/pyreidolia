@@ -18,7 +18,7 @@ KEYWORDS = "pareidolia, segmentation, clouds, meteorology"
 
 setup(
     name="pyreidolia",
-    version="0.0.3",
+    version="0.0.4",
     description="cloudy regions segmentation",
     long_description=README,
     long_description_content_type="text/markdown",
