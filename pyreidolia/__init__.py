@@ -1,7 +1,7 @@
 from . import plot
 from . import mask
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 __all__ = ["plot", "mask", "img", "io", "optim", "processing", "segmentation", "unet"]
 
 # bound to upper level
