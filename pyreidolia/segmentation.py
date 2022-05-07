@@ -89,10 +89,18 @@ class CloudDataset(Dataset):
 
     def __getitem__(self, idx):
         image_name = self.img_ids[idx]
+        # make mask
         mask = make_mask(df=self.df, image_name=image_name, mask_path=self.mask_folder)
+        # load the image in RGB
         image_path = os.path.join(self.data_folder, image_name)
         img = cv2.imread(image_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # pre-processing, dilate and extract background
+        kernel = np.ones((7, 7), np.uint8)
+        img = cv2.dilate(img, kernel)
+        backSub = cv2.createBackgroundSubtractorMOG2() #cv2.createBackgroundSubtractorKNN()
+        img = backSub.apply(img)
+        # augmentation
         augmented = self.transforms(image=img, mask=mask)
         img = np.transpose(augmented["image"], [2, 0, 1])
         mask = np.transpose(augmented["mask"], [2, 0, 1])
