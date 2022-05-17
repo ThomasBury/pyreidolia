@@ -95,6 +95,11 @@ class CloudDataset(Dataset):
         image_path = os.path.join(self.data_folder, image_name)
         img = cv2.imread(image_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # Blur the image
+        img_blurred = cv2.blur(img, ksize=(51, 51))
+        # Take the difference with the original image
+        # Weight with a factor of 4x to increase contrast
+        img = cv2.addWeighted(img, 4, img_blurred, -4, 0)
         # augmentation
         augmented = self.transforms(image=img, mask=mask)
         img = np.transpose(augmented["image"], [2, 0, 1])
