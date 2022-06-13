@@ -6,10 +6,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import Any, Callable, Union, List, Tuple
 
-def rle_to_mask(rle: str, 
-                size: Tuple[int]  = (1400, 2100)):
+
+def rle_to_mask(rle: str, size: Tuple[int] = (1400, 2100)):
     """decode rle to mask
-    
+
     Parameters
     ----------
     rle : str
@@ -22,11 +22,12 @@ def rle_to_mask(rle: str,
     np.array
         mask
     """
-    array = np.fromstring(rle, dtype=int, sep=' ')
-    return array_to_mask(array=array, size=size) 
+    array = np.fromstring(rle, dtype=int, sep=" ")
+    return array_to_mask(array=array, size=size)
+
 
 @jit(nopython=True)
-def array_to_mask(array: np.array, size: Tuple[int]  = (1400, 2100)):
+def array_to_mask(array: np.array, size: Tuple[int] = (1400, 2100)):
     """Converting an RLE encoding to a mask
 
     Parameters
@@ -43,17 +44,18 @@ def array_to_mask(array: np.array, size: Tuple[int]  = (1400, 2100)):
     """
 
     width, height = size[:2]
-    mask = np.zeros(width*height).astype(np.uint8)
+    mask = np.zeros(width * height).astype(np.uint8)
     # array = np.asarray([int(x) for x in rle.split()])
     starts = array[0::2]
     lengths = array[1::2]
     current_position = 0
-    
+
     for index, start in enumerate(starts):
-        mask[int(start):int(start+lengths[index])] = 1
+        mask[int(start) : int(start + lengths[index])] = 1
         current_position += lengths[index]
-        
+
     return mask.reshape(height, width).T
+
 
 def mask_to_rle(image):
     """Encode a masked image to rle string
@@ -77,12 +79,12 @@ def mask_to_rle(image):
     pixels[-1] = 0
     runs = np.where(pixels[1:] != pixels[:-1])[0] + 2
     runs[1::2] = runs[1::2] - runs[:-1:2]
-    return ' '.join(str(x) for x in runs)
+    return " ".join(str(x) for x in runs)
 
-def make_mask(df: pd.DataFrame,
-              mask_path: str, 
-              image_name: str, 
-              shape: Tuple[int] = (350, 525)):
+
+def make_mask(
+    df: pd.DataFrame, mask_path: str, image_name: str, shape: Tuple[int] = (350, 525)
+):
     """Create mask based on df, image name and shape.
 
     Parameters
@@ -112,9 +114,22 @@ def make_mask(df: pd.DataFrame,
                 mask = cv2.resize(mask, (525, 350))
             masks[:, :, classidx] = mask[:, :, 0]
     masks = masks / 255
-    return masks 
+    return masks
+
 
 def bounding_box(img):
+    """Compute the bounding box
+
+    Parameters
+    ----------
+    img : np.array
+        the image to be bound
+
+    Returns
+    -------
+    Tuple[float]
+        rows min and max, cols min and max respectively
+    """
     # return max and min of a mask to draw bounding box
     rows = np.any(img, axis=1)
     cols = np.any(img, axis=0)
@@ -125,22 +140,44 @@ def bounding_box(img):
 
 
 def get_mask_cloud(img_path, img_id, label, mask):
+    """Decode and get the masks in the train set
+
+    Parameters
+    ----------
+    img_path : str
+        path to the images
+    img_id : str
+        image identifier
+    label : str
+        class label, optional
+    mask : np.array
+        cloud mask
+
+    Returns
+    -------
+    np.array
+        the cloud mask
+    """
     img = cv2.imread(os.path.join(img_path, img_id), 0)
     mask_decoded = rle_to_mask(mask, size=img.shape)
     mask_decoded = (mask_decoded > 0.0).astype(int)
     img = np.multiply(img, mask_decoded)
     return img
 
+
 def get_binary_mask_sum(encoded_mask):
     """Count the number of pixels in a mask (surface)
 
-    Args:
-        encoded_mask (np.array): pattern mask
+    Parameters
+    ----------
+    encoded_mask : np.array
+        pattern mask
 
-    Returns:
-        int: number of pixels (surface)
+    Returns
+    -------
+    int
+        number of pixels (surface)
     """
     mask_decoded = rle_to_mask(encoded_mask, size=(2100, 1400))
     binary_mask = (mask_decoded > 0.0).astype(int)
     return binary_mask.sum()
-

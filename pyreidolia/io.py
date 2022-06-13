@@ -2,9 +2,10 @@ import os
 from typing import Union, Callable, Optional, Any, List, Tuple
 import cv2
 
-def get_img(img_name: str,
-            main_folder: str, 
-            folder: str = "train_images_525/train_images_525"):
+
+def get_img(
+    img_name: str, main_folder: str, folder: str = "train_images_525/train_images_525"
+):
     """Return image based on image name and folder.
 
     Parameters

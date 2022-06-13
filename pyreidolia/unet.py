@@ -8,15 +8,16 @@ class UNet(nn.Module):
 
     Parameters
     ----------
-    nn :     
+    nn :
      torch neural network object
     """
+
     def __init__(self, n_channels, n_classes):
         super(UNet, self).__init__()
         # input double convolution
         self.inc = inconv(n_channels, 64)
-        # downsampling: maxpooling (~feature selection/reduction) 
-        # then convolution (feature eng/extraction) 
+        # downsampling: maxpooling (~feature selection/reduction)
+        # then convolution (feature eng/extraction)
         # this reduces the number of pixels (height, width)
         # but increases the number of channels
         self.down1 = down(64, 128)
@@ -42,7 +43,8 @@ class UNet(nn.Module):
         x = self.up4(x, x1)
         x = self.outc(x)
         return torch.sigmoid(x)
-    
+
+
 class inconv(nn.Module):
     def __init__(self, in_ch, out_ch):
         super(inconv, self).__init__()
@@ -52,12 +54,13 @@ class inconv(nn.Module):
         x = self.conv(x)
         return x
 
+
 class double_conv(nn.Module):
     """Two stages of (conv => Batch normalization => ReLU)
 
     Parameters
     ----------
-    nn : 
+    nn :
         torch neural network object
     """
 
@@ -76,15 +79,17 @@ class double_conv(nn.Module):
         x = self.conv(x)
         return x
 
+
 class down(nn.Module):
     """Downsampling 2D max-pooling and then convolution
     Reduce image dimensions (height, width) but increase the number of channels
 
     Parameters
     ----------
-    nn : 
+    nn :
         torch neural network object
     """
+
     def __init__(self, in_ch, out_ch):
         super(down, self).__init__()
         self.mpconv = nn.Sequential(nn.MaxPool2d(2), double_conv(in_ch, out_ch))
@@ -100,9 +105,10 @@ class up(nn.Module):
 
     Parameters
     ----------
-    nn : 
+    nn :
         torch neural network object
     """
+
     def __init__(self, in_ch, out_ch, bilinear=True):
         super(up, self).__init__()
 
@@ -121,7 +127,7 @@ class up(nn.Module):
         diffX = x2.size()[3] - x1.size()[3]
 
         x1 = F.pad(x1, (diffX // 2, diffX - diffX // 2, diffY // 2, diffY - diffY // 2))
-        
+
         x = torch.cat([x2, x1], dim=1)
         return self.conv(x)
 
@@ -131,9 +137,10 @@ class outconv(nn.Module):
 
     Parameters
     ----------
-    nn : 
+    nn :
         torch neural network object
     """
+
     def __init__(self, in_ch, out_ch):
         super(outconv, self).__init__()
         self.conv = nn.Conv2d(in_ch, out_ch, 1)
@@ -141,5 +148,3 @@ class outconv(nn.Module):
     def forward(self, x):
         x = self.conv(x)
         return x
-
-

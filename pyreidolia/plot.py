@@ -12,7 +12,10 @@ from matplotlib import patches as patches
 
 from pyreidolia.mask import rle_to_mask, bounding_box, get_mask_cloud
 
-def set_my_plt_style(height: int = 3, width: int = 5, linewidth: Union[float, int] = 2) -> plt.figure:
+
+def set_my_plt_style(
+    height: int = 3, width: int = 5, linewidth: Union[float, int] = 2
+) -> plt.figure:
     """This set the style of matplotlib to fivethirtyeight with some modifications (colours, axes)
 
     Parameters
@@ -25,43 +28,47 @@ def set_my_plt_style(height: int = 3, width: int = 5, linewidth: Union[float, in
          (default ``2``)
 
     """
-    plt.style.use('fivethirtyeight')
+    plt.style.use("fivethirtyeight")
     my_colors_list = Bold_10.hex_colors
     myorder = [2, 3, 4, 1, 0, 6, 5, 8, 9, 7]
     my_colors_list = [my_colors_list[i] for i in myorder]
     bckgnd_color = "#f5f5f5"
-    params = {'figure.figsize': (width, height),
-              "axes.prop_cycle": plt.cycler(color=my_colors_list),
-              "axes.facecolor": bckgnd_color,
-              "patch.edgecolor": bckgnd_color,
-              "figure.facecolor": bckgnd_color,
-              "axes.edgecolor": bckgnd_color,
-              "savefig.edgecolor": bckgnd_color,
-              "savefig.facecolor": bckgnd_color,
-              "grid.color": "#d2d2d2",
-              'lines.linewidth': linewidth,
-              'grid.alpha': 0.5}  # plt.cycler(color=my_colors_list)
+    params = {
+        "figure.figsize": (width, height),
+        "axes.prop_cycle": plt.cycler(color=my_colors_list),
+        "axes.facecolor": bckgnd_color,
+        "patch.edgecolor": bckgnd_color,
+        "figure.facecolor": bckgnd_color,
+        "axes.edgecolor": bckgnd_color,
+        "savefig.edgecolor": bckgnd_color,
+        "savefig.facecolor": bckgnd_color,
+        "grid.color": "#d2d2d2",
+        "lines.linewidth": linewidth,
+        "grid.alpha": 0.5,
+    }  # plt.cycler(color=my_colors_list)
     mpl.rcParams.update(params)
 
 
-def plot_cloud(img_path: str, 
-               img_id: str, 
-               label_mask: str, 
-               figsize: Tuple[int] = (20,10), 
-               ax: Optional[matplotlib.axes.Axes] = None):
+def plot_cloud(
+    img_path: str,
+    img_id: str,
+    label_mask: str,
+    figsize: Tuple[int] = (20, 10),
+    ax: Optional[matplotlib.axes.Axes] = None,
+):
     """Plot a cloud with a mask
 
     Parameters
     ----------
-    img_path : 
+    img_path :
         image path
-    img_id : 
+    img_id :
         image id
-    label_mask : 
+    label_mask :
         mask label
-    figsize : 
+    figsize :
         the figure size, by default (20,10)
-    ax : 
+    ax :
         existing axes, if any, by default None
 
     Returns
@@ -70,42 +77,51 @@ def plot_cloud(img_path: str,
         matplotlib axes
     """
     img = cv2.imread(os.path.join(img_path, img_id))
-    
+
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     ax.imshow(img)
-    cmaps = {'Fish': 'Blues', 'Flower': 'Reds', 'Gravel': 'Greens', 'Sugar':'Oranges'}
-    colors = {'Fish': 'Blue', 'Flower': 'Red', 'Gravel': 'Green', 'Sugar':'Orange'}
+    cmaps = {"Fish": "Blues", "Flower": "Reds", "Gravel": "Greens", "Sugar": "Oranges"}
+    colors = {"Fish": "Blue", "Flower": "Red", "Gravel": "Green", "Sugar": "Orange"}
     for label, mask in label_mask:
         mask_decoded = rle_to_mask(mask, size=img.shape)
         if mask is not None:
             rmin, rmax, cmin, cmax = bounding_box(mask_decoded)
-            bbox = patches.Rectangle((cmin,rmin), cmax-cmin, rmax-rmin, linewidth=1.5, edgecolor=colors[label], facecolor='none')
+            bbox = patches.Rectangle(
+                (cmin, rmin),
+                cmax - cmin,
+                rmax - rmin,
+                linewidth=1.5,
+                edgecolor=colors[label],
+                facecolor="none",
+            )
             ax.add_patch(bbox)
             ax.text(cmin, rmin, label, bbox=dict(fill=True, color=colors[label]))
             ax.imshow(mask_decoded, alpha=0.5, cmap=cmaps[label])
             ax.text(cmin, rmin, label, bbox=dict(fill=True, color=colors[label]))
     return ax
-            
-            
-def plot_rnd_cloud(img_path: str, 
-                   grouped_masks: pd.Series, 
-                   n_samples: int = 9, 
-                   figsize: Tuple[int] = (20,10), 
-                   show: bool = True):
+
+
+def plot_rnd_cloud(
+    img_path: str,
+    grouped_masks: pd.Series,
+    n_samples: int = 9,
+    figsize: Tuple[int] = (20, 10),
+    show: bool = True,
+):
     """Plot random images from the dataset
 
     Parameters
     ----------
-    img_path : 
+    img_path :
         image path
-    grouped_masks : 
+    grouped_masks :
         the series with tuple (label, mask)
-    n_samples : 
+    n_samples :
         number of images to plot, by default 9
-    figsize : 
+    figsize :
         figure size, by default (20,10)
-    show : 
+    show :
         display or not, by default True
 
     Returns
@@ -113,21 +129,23 @@ def plot_rnd_cloud(img_path: str,
     matplotlib.pyplot.figure
         the matplotlib figure
     """
-    
+
     n_cols = int(np.floor(np.sqrt(n_samples)))
     n_rows = int(np.ceil(n_samples / n_cols))
     n_subplots = n_rows * n_cols
-    
+
     fig, axs = plt.subplots(figsize=figsize, ncols=n_cols, nrows=n_rows)
-    
+
     if n_samples > 1:
         axs = axs.flatten()
-    
+
     count = 0
     for image_id, label_mask in grouped_masks.sample(n_samples).iteritems():
-        _ = plot_cloud(img_path=img_path, img_id=image_id, label_mask=label_mask, ax=axs[count])
+        _ = plot_cloud(
+            img_path=img_path, img_id=image_id, label_mask=label_mask, ax=axs[count]
+        )
         count += 1
-    
+
     if n_subplots > n_samples > 1:
         for i in range(n_samples, n_subplots):
             ax = axs[i]
@@ -140,49 +158,55 @@ def plot_rnd_cloud(img_path: str,
     return fig
 
 
-def draw_label_only(label: str, 
-                    train_df: pd.DataFrame, 
-                    train_path: str, 
-                    figsize: Tuple[int] = (16,6)):
+def draw_label_only(
+    label: str, train_df: pd.DataFrame, train_path: str, figsize: Tuple[int] = (16, 6)
+):
     """Draw only the clipped part of the image corresponding to the label
 
     Parameters
     ----------
     label :
         cloud label to draw
-    train_df : 
+    train_df :
         the dataframe with image info
-    train_path : 
+    train_path :
         the images path
-    figsize : 
+    figsize :
         figure size, by default (16,6)
     """
-    samples_df = train_df[(~train_df['encoded_pixels'].isnull()) & (train_df['label']==label)].sample(2)
+    samples_df = train_df[
+        (~train_df["encoded_pixels"].isnull()) & (train_df["label"] == label)
+    ].sample(2)
     count = 0
     fig, ax = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=figsize)
     for idx, sample in samples_df.iterrows():
-        img = get_mask_cloud(train_path, sample['image_id'], sample['label'], sample['encoded_pixels'])
+        img = get_mask_cloud(
+            train_path, sample["image_id"], sample["label"], sample["encoded_pixels"]
+        )
         ax[count].imshow(img, cmap="gray")
         count += 1
     plt.suptitle(f"Illustration of {label} cloud pattern")
     plt.tight_layout()
-    
-def plot_cloud_column(image: Union[np.ndarray, np.array], 
-                      mask: Union[np.ndarray, np.array], 
-                      original_image: Optional[Union[np.ndarray, np.array]] = None, 
-                      original_mask: Optional[Union[np.ndarray, np.array]] = None):
+
+
+def plot_cloud_column(
+    image: Union[np.ndarray, np.array],
+    mask: Union[np.ndarray, np.array],
+    original_image: Optional[Union[np.ndarray, np.array]] = None,
+    original_mask: Optional[Union[np.ndarray, np.array]] = None,
+):
     """Plot image and masks in different charts (columns)
     If two pairs of images and masks are passes, show both.
 
     Parameters
     ----------
-    image : 
+    image :
         images to plot
-    mask : 
+    mask :
         mask to plot
-    original_image : 
+    original_image :
         original image to plot, if any, by default None
-    original_mask : 
+    original_mask :
         original mask to plot, if any, by default None
     """
     fontsize = 14
@@ -216,29 +240,29 @@ def plot_cloud_column(image: Union[np.ndarray, np.array],
 
 
 def visualize_with_raw(
-    image: Union[np.ndarray, np.array], 
-    mask: Union[np.ndarray, np.array], 
-    original_image: Optional[Union[np.ndarray, np.array]] = None, 
+    image: Union[np.ndarray, np.array],
+    mask: Union[np.ndarray, np.array],
+    original_image: Optional[Union[np.ndarray, np.array]] = None,
     original_mask: Optional[Union[np.ndarray, np.array]] = None,
-    raw_image: Optional[Union[np.ndarray, np.array]] = None, 
-    raw_mask: Optional[Union[np.ndarray, np.array]] = None
+    raw_image: Optional[Union[np.ndarray, np.array]] = None,
+    raw_mask: Optional[Union[np.ndarray, np.array]] = None,
 ):
     """Plot image and masks in different charts (columns)
     If two pairs of images and masks are passes, show both.
 
     Parameters
     ----------
-    image : 
+    image :
         images to plot
-    mask : 
+    mask :
         mask to plot
-    original_image : 
+    original_image :
         original image to plot, if any, by default None
-    original_mask : 
+    original_mask :
         original mask to plot, if any, by default None
-    raw_image : 
+    raw_image :
         raw image to plot, if any, by default None
-    raw_mask : 
+    raw_mask :
         raw mask to plot, if any, by default None
     """
     fontsize = 14
@@ -270,13 +294,13 @@ def visualize_with_raw(
         )
 
 
-def plot_with_augmentation(image,
-                           mask, 
-                           augment):
+def plot_with_augmentation(image, mask, augment):
     """
     Wrapper for `plot_cloud_column` function.
     """
     augmented = augment(image=image, mask=mask)
     image_flipped = augmented["image"]
     mask_flipped = augmented["mask"]
-    plot_cloud_column(image_flipped, mask_flipped, original_image=image, original_mask=mask)
+    plot_cloud_column(
+        image_flipped, mask_flipped, original_image=image, original_mask=mask
+    )

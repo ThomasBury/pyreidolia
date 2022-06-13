@@ -2,7 +2,7 @@ from . import plot
 from . import mask
 
 __version__ = "0.0.5"
-__all__ = ["plot", "mask", "img", "io", "optim", "processing", "segmentation", "unet"]
+__all__ = ["img", "io", "mask", "optim", "plot", "processing", "segmentation", "torchloss", "unet"]
 
 # bound to upper level
 from .plot import *
